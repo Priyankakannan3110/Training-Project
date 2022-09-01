@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.io.IOUtils;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -49,8 +48,8 @@ public class BillServiceImpl implements BillService {
                     insertBill(requestMap);
                 }
 
-                String data = "Name : " + requestMap.get("name") + "\n" + "Contact Number : " + requestMap.get("contactNumber") +
-                        "\n" + "Email : " + requestMap.get("email") + "\n" + "Payment method : " + requestMap.get("paymentMethod");
+                String data = "Name: " + requestMap.get("name") + "\n" + "Contact Number: " + requestMap.get("contactNumber") +
+                        "\n" + "Email: " + requestMap.get("email") + "\n" + "Payment Method: " + requestMap.get("paymentMethod");
 
                 Document document = new Document();
                 PdfWriter.getInstance(document, new FileOutputStream(RestaurantConstants.STORE_LOCATION +
@@ -59,9 +58,9 @@ public class BillServiceImpl implements BillService {
                 document.open();
                 setFrameInPdf(document);
 
-                Paragraph chunks =new Paragraph("RESTAURANT MANAGEMENT SYSTEM",getFont("Header"));
-                chunks.setAlignment(Element.ALIGN_CENTER);
-                document.add(chunks);
+                Paragraph chunk =new Paragraph("RESTAURANT MANAGEMENT SYSTEM",getFont("Header"));
+                chunk.setAlignment(Element.ALIGN_CENTER);
+                document.add(chunk);
 
                 Paragraph paragraph=new Paragraph(data+"\n \n",getFont("Data"));
                 document.add(paragraph);
@@ -70,13 +69,13 @@ public class BillServiceImpl implements BillService {
                 table.setWidthPercentage(100);
                 addTableHeader(table);
 
-                JSONArray jsonArray=RestaurantUtils.getJsonArrayFromString((String) requestMap.get(requestMap.get("productDetails")));
+                JSONArray jsonArray=RestaurantUtils.getJsonArrayFromString((String) requestMap.get("productDetails"));
                 for(int i=0;i< jsonArray.length();i++){
                     addRows(table,RestaurantUtils.getMapFromJson(jsonArray.getString(i)));
                 }
                 document.add(table);
 
-                Paragraph footer =new Paragraph("Total :"+requestMap.get("total")+"\n" +
+                Paragraph footer =new Paragraph("Total :"+requestMap.get("totalAmount")+"\n" +
                         "****THANK YOU****",getFont("Data"));
                 document.add(footer);
                 document.close();
@@ -107,7 +106,7 @@ public class BillServiceImpl implements BillService {
                 .forEach(columnTitle->{
                     PdfPCell header =new PdfPCell();
                     header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                    header.setBorder(2);
+                    header.setBorderWidth(2);
                     header.setPhrase(new Phrase(columnTitle));
                     header.setBackgroundColor(BaseColor.LIGHT_GRAY);
                     header.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -126,6 +125,7 @@ public class BillServiceImpl implements BillService {
             case "Data":
                 Font dataFont=FontFactory.getFont(FontFactory.TIMES_ROMAN,11,BaseColor.BLACK);
                 dataFont.setStyle(Font.BOLD);
+                return dataFont;
             default:
                 return new Font();
         }
@@ -138,7 +138,7 @@ public class BillServiceImpl implements BillService {
         rect.enableBorderSide(2);
         rect.enableBorderSide(4);
         rect.enableBorderSide(8);
-        rect.setBackgroundColor(BaseColor.BLACK);
+        rect.setBackgroundColor(BaseColor.WHITE);
         rect.setBorderWidth(1);
         document.add(rect);
     }
@@ -152,7 +152,7 @@ public class BillServiceImpl implements BillService {
             bill.setContactNumber((String) requestMap.get("contactNumber"));
             bill.setPaymentMethod((String) requestMap.get("paymentMethod"));
             bill.setTotal(Integer.parseInt((String) requestMap.get("totalAmount")));
-            bill.setProductDetails((String) requestMap.get("productDetails"));
+            bill.setProductDetail((String) requestMap.get("productDetails"));
             bill.setCreateBy(jwtFilter.getCurrentUser());
             billDao.save(bill);
         } catch (Exception ex) {
@@ -163,7 +163,7 @@ public class BillServiceImpl implements BillService {
     private boolean validateRequestMap(Map<String, Object> requestMap) {
         return requestMap.containsKey("name") &&
                 requestMap.containsKey("contactNumber") &&
-                requestMap.containsKey(("email")) &&
+                requestMap.containsKey("email") &&
                 requestMap.containsKey("paymentMethod") &&
                 requestMap.containsKey("productDetails") &&
                 requestMap.containsKey("totalAmount");

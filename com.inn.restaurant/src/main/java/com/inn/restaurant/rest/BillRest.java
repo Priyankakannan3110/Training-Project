@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-//@CrossOrigin(origins="http://localhost:4200")
+
 @RequestMapping(path="/bill")
 public interface BillRest {
     @PostMapping(path = "/generateReport")

@@ -29,7 +29,7 @@ public class RestaurantUtils {
     public static String getUUID(){
         Date date = new Date();
         long time =date.getTime();
-        return "Bill-"+time;
+        return "BILL-"+time;
     }
 
     public static JSONArray getJsonArrayFromString(String data) throws JSONException{
